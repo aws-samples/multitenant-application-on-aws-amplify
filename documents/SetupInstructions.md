@@ -3,9 +3,10 @@ SPDX-License-Identifier: MIT-0
 ## Setup Instructions : 
 
 - Clone repo to your local file system 
+    - `git clone https://github.com/aws-samples/multitenant-application-on-aws-amplify.git  `
 
 - Change Directory to CDK Backend Solution and Install
-    - `cd .\serverless-multi-tenant-aws-amplify-application\backend-resources\cdk-ts-amplify-backend-resource\`
+    - `cd .\multitenant-application-on-aws-amplify\backend-resources\cdk-ts-amplify-backend-resource\`
     - `npm install `      
     - `cdk deploy `
     - Select `y` to deploy resources via the AWS CDK       
