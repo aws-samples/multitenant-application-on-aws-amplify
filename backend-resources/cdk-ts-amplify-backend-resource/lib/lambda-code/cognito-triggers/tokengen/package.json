@@ -8,6 +8,6 @@
   },
   "license": "MIT-0",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.188.0"
+    "@aws-sdk/client-dynamodb": "^3.441.0"
   }
 }
