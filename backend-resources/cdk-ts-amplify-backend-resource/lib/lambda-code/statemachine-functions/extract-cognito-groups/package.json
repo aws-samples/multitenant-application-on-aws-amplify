@@ -1,0 +1,16 @@
+{
+    "name": "extract-cognito-groups",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "MIT-0",
+    "dependencies": {
+        "aws-jwt-verify": "^4.0.0",
+        "aws-sdk": "^2.1463.0",
+        "jsonwebtoken": "^9.0.1"
+    }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "tokengen",
+  "version": "1.0.0",
+  "description": "TokenGenerationLambda",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT-0",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.188.0"
+  }
+}

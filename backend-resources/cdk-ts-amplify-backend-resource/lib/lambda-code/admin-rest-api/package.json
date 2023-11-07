@@ -1,0 +1,23 @@
+{
+  "name": "amplifyadminqueries",
+  "version": "1.0.0",
+  "description": "Administrative actions for Amazon Cognito",
+  "main": "index.js",
+  "license": "MIT-0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.332.0",
+    "aws-serverless-express": "^3.4.0",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/aws-serverless-express": "^3.3.5",
+    "aws-sdk": "^2.1463.0",
+    "typescript": "^5.0.4"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "admincreateuserpoolgrouplambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT-0",
+  "dependencies": {
+    "aws-sdk": "^2.1463.0",
+    "typescript": "^5.2.2"
+  }
+}
