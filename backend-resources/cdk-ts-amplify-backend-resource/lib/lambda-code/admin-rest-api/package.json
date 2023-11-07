@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.332.0",
+    "@aws-sdk/client-dynamodb": "^3.441.0",
     "aws-serverless-express": "^3.4.0",
     "body-parser": "^1.20.2",
     "express": "^4.18.2"
