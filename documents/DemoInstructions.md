@@ -67,6 +67,7 @@ SPDX-License-Identifier: MIT-0
         - View users in the tenant via the ![Share Btn](../images/ListUsersBtn.PNG) button 
         -  View, Add, and Share Task
             > **NOTE** Share Task via the ![Share Btn](../images/sharebtn.png) button associated with each task 
+
             > **NOTE** Share the task only with users within the same tenant by typing their username ie `tenantauser1` in the provided field.
         - Upload, Delete, and View Images and Videos
         - Create New Tenant User
@@ -79,11 +80,11 @@ SPDX-License-Identifier: MIT-0
                 - **Confirm Email**: Input must be identical to the previous field 
                     - example: `myemailalias+tenantauser@emaildomain.com`
                 - Click the `Create User` button to submit the action to create the user. A message should appear at the top of the screen: <span style="color:green"> **User created Successfully!** </span>
-            - Upon successfully creation of general user the following task are completed by backend services deploy via the CDK solution:
+            - Upon successful creation of general user the following task are completed by backend services deploy via the CDK solution:
                 - The JWT token of the Tenant Admin is validated by Amazon API gateway and then passed with the form data to a lambda function. 
                 - The lambda function extracts the tenantId value from JWT and sets the value of the new users Amazon Cognito tenantId custom attribute to the same value.  
                 - The new user is then provisioned to the same Amazon Cognito UserPool Group as the Tenant Admin which created the user.
-                - A Amazon Cognito Custom message trigger is invoked which emails the new general user: 
+                - An Amazon Cognito custom message trigger is invoked which emails the new general user: 
                     - The url of the web application 
                     - The username created by the Tenant Admin user
                     - A generated temporary password  
@@ -106,6 +107,7 @@ SPDX-License-Identifier: MIT-0
     - Login to the web application using the username and temporary password credentials provided in the email. 
     - Upon logging in with temporary credentials creating a new password is be required
     - Upon successful password update you will be returned to the login page
+        - - ![Tenant User Landing Page](../images/TenantUserLandingPage.PNG)
     - Log back in with the same username and new password
     - General tenant users may take the following actions:
         -  View, Add, and Share Task
