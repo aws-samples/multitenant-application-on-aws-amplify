@@ -25,6 +25,7 @@ SPDX-License-Identifier: MIT-0
 
 * <em>**Create new Tenant Admin:** </em> 
     - Upon successful login home page should be presented that provides a link for Global Admin users to create a Tenant Admin User
+        - ![Global Admin Landing Page](../images/GlobalAdminLandingPage.PNG)
     - Select the link to create a Tenant Admin and complete the provide fields 
         - **Username**: a unique sequence of characters that will be used as one of the features to identify the user within the application.
             - example: `admintenanta`
