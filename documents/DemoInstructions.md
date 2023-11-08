@@ -11,9 +11,9 @@ SPDX-License-Identifier: MIT-0
         - **username**: `globaladmin`
         - **temp password**: `ChangeMe!@12` 
 
-        > **Internal Note:** <span style="color:RED"> A link to the Secrets Manager asset will be provided prior to public release </span>
+        - ![ChangePassword](../images/ChangePassword.PNG)
         
-        > **Internal Note:** <span style="color:RED"> Credentials can be modified in the  `backend-resources\cdk-ts-amplify-backend-resource\config\staticConfig.ts` file for now. </span>
+        > **Note:** <span style="color:RED"> Credentials can be modified in the  `backend-resources\cdk-ts-amplify-backend-resource\config\staticConfig.ts` file for now. </span>
 
     - You may confirm the properties of the Global Admin and all users within the Amazon Cognito UserPool associated with this solution 
         - Run the command below again in the terminal to generate a link to the Amazon Cognito UserPool: 
