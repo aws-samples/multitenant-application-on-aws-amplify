@@ -112,6 +112,7 @@ SPDX-License-Identifier: MIT-0
     - General tenant users may take the following actions:
         -  View, Add, and Share Task
             > **NOTE** Share Task via the ![Share Btn](../images/sharebtn.png) button associated with each task 
+            
             > **NOTE** Share the task with other users in the same tenant by typing their username ie `admintenanta` in the provided field.
             - To create and share a task: 
                 - Select the `My Task ` link on the home page
