@@ -11,7 +11,7 @@
     "@types/jest": "^27.5.2",
     "@types/video.js": "^7.3.52",
     "antd": "^5.4.2",
-    "aws-amplify": "^5.0.18",
+    "aws-amplify": "^5.3.12",
     "aws-sdk": "^2.1363.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
