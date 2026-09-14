@@ -4,38 +4,22 @@ SPDX-License-Identifier: MIT-0 */
 
 
 import { NextFunction } from 'express';
+import { getAdminAuthorization } from './adminAuthorization';
 
-const gloabalAdminGroup = process.env.GROUP;
+export function createAdminCheck(globalAdminGroup: string | undefined) {
+  return function adminCheck(req: any, res: any, next: NextFunction) {
+    const claims = req.apiGateway?.event?.requestContext?.authorizer?.claims;
+    const authorization = getAdminAuthorization(claims, globalAdminGroup);
 
-// check if user is a global admin
-const adminCheck = function (req: any, res: any, next: NextFunction) {
-
-    if (req.path == '/admin/users/signUserOut') {
-      return next();
+    if (!authorization) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
-    
-    // ensure global admin is set 
-    if (typeof gloabalAdminGroup === 'undefined' || gloabalAdminGroup === 'NONE') {
-      res.status(401).json({ error: 'Unauthorized' });
-    }
-   
-      const groups = req.apiGateway.event.requestContext.authorizer.claims['cognito:groups'].split(',');
-      console.log("print all users cognito groups: ", groups)
- 
-      if ((gloabalAdminGroup && groups.indexOf(gloabalAdminGroup) > -1)) {
-       return next();
 
-      } else if (req.apiGateway.event.requestContext.authorizer.claims['custom:tenantId'] && req.apiGateway.event.requestContext.authorizer.claims['custom:isAdmin'] === 'true') {
-        return next();
-      
-      } else {
-
- 
-      res.status(401).json({ error: 'Unauthorized' }); 
-
-      }
-
-  res.status(401).json({ error: 'Unauthorized' });
+    req.adminAuthorization = authorization;
+    return next();
   };
+}
+
+const adminCheck = createAdminCheck(process.env.GROUP);
   
 export default adminCheck;

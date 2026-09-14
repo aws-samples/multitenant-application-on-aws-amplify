@@ -64,8 +64,7 @@ export class UserPoolClientConstruct extends Construct {
         timezone: true,
         lastUpdateTime: true,
         website: true,
-      })
-      .withCustomAttributes(...names.cognitoCustomAttributeNames);
+      });
 
 
     this.userPoolClient = new cognito.UserPoolClient(this, 'userpool-client', {

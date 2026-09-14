@@ -227,6 +227,20 @@ async function listGroups(Limit?: any, PaginationToken?: any) {
   }
 }
 
+async function getGroup(groupname: string) {
+  const params: CognitoIdentityServiceProvider.GetGroupRequest = {
+    GroupName: groupname,
+    UserPoolId: userPoolId,
+  };
+
+  try {
+    return await cognitoIdentityServiceProvider.getGroup(params).promise();
+  } catch (err) {
+    console.log("get group error: ", err);
+    throw err;
+  }
+}
+
 async function listGroupsForUser(username: string, Limit?: any, NextToken?: any) {
   const params = {
     UserPoolId: userPoolId,
@@ -295,6 +309,7 @@ export  {
   getUser,
   listUsers,
   listGroups,
+  getGroup,
   listGroupsForUser,
   listUsersInGroup,
   signUserOut,
