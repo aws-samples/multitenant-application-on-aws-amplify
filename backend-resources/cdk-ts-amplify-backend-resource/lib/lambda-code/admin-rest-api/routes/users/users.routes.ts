@@ -5,6 +5,7 @@ SPDX-License-Identifier: MIT-0 */
 
 import { Request, Response, Router } from 'express';
 import adminCheck from '../../middleware/adminCheck';
+import adminRateLimit from '../../middleware/adminRateLimit';
 import {
   AdminAuthorization,
   filterUsersToTenant,
@@ -69,7 +70,7 @@ async function ensureUserInAuthorizedTenant(
   }
 }
 
-router.get('/listGroups', adminCheck, async (req: AuthorizedRequest, res: Response) => {
+router.get('/listGroups', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res: Response) => {
 
     try {
       let response;
@@ -94,7 +95,7 @@ router.get('/listGroups', adminCheck, async (req: AuthorizedRequest, res: Respon
     }
   });
 
-  router.post('/createNewUser', adminCheck, async (req: AuthorizedRequest, res, next) => {
+  router.post('/createNewUser', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
      const authorization = getAuthorization(req);
      const groupName = getAuthorizedTenant(req, req.body.tenantId);
      const isAdmin = resolveNewUserAdminFlag(authorization, req.body.isAdmin);
@@ -117,7 +118,7 @@ router.get('/listGroups', adminCheck, async (req: AuthorizedRequest, res: Respon
      }
    });
    
-   router.post('/addUserToGroup',adminCheck, async (req: AuthorizedRequest, res, next) => {
+   router.post('/addUserToGroup', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
      const groupName = getAuthorizedTenant(req, req.body.groupname);
      if (!req.body.username || !groupName) {
        const err: any = new Error('username and groupname are required');
@@ -135,7 +136,7 @@ router.get('/listGroups', adminCheck, async (req: AuthorizedRequest, res: Respon
    });
    
    
-router.post('/removeUserFromGroup', adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.post('/removeUserFromGroup', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   const groupName = getAuthorizedTenant(req, req.body.groupname);
   if (!req.body.username || !groupName) {
     const err: any = new Error('username and groupname are required');
@@ -152,7 +153,7 @@ router.post('/removeUserFromGroup', adminCheck, async (req: AuthorizedRequest, r
   }
 });
 
-router.post('/confirmUserSignUp',adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.post('/confirmUserSignUp', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   if (!req.body.username) {
     const err: any = new Error('username is required');
     err.statusCode = 400;
@@ -168,7 +169,7 @@ router.post('/confirmUserSignUp',adminCheck, async (req: AuthorizedRequest, res,
   }
 });
 
-router.post('/disableUser',adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.post('/disableUser', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   if (!req.body.username) {
     const err: any = new Error('username is required');
     err.statusCode = 400;
@@ -184,7 +185,7 @@ router.post('/disableUser',adminCheck, async (req: AuthorizedRequest, res, next)
   }
 });
 
-router.post('/enableUser',adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.post('/enableUser', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   if (!req.body.username) {
     const err: any = new Error('username is required');
     err.statusCode = 400;
@@ -200,7 +201,7 @@ router.post('/enableUser',adminCheck, async (req: AuthorizedRequest, res, next) 
   }
 });
 
-router.get('/getUser',adminCheck, async (req: AuthorizedRequest, res: Response, next) => {
+router.get('/getUser', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res: Response, next) => {
   if (!req.query.username) {
     const err: any = new Error('username is required');
     err.statusCode = 400;
@@ -218,7 +219,7 @@ router.get('/getUser',adminCheck, async (req: AuthorizedRequest, res: Response, 
   }
 });
 
-router.get('/listUsers', adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.get('/listUsers', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   try {
     let response;
     const authorization = getAuthorization(req);
@@ -247,7 +248,7 @@ router.get('/listUsers', adminCheck, async (req: AuthorizedRequest, res, next) =
 });
 
 
-router.get('/listGroupsForUser',adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.get('/listGroupsForUser', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   if (!req.query.username) {
     const err: any = new Error('username is required');
     err.statusCode = 400;
@@ -278,7 +279,7 @@ router.get('/listGroupsForUser',adminCheck, async (req: AuthorizedRequest, res, 
   }
 });
 
-router.get('/listUsersInGroup',adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.get('/listUsersInGroup', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
   const groupname = getAuthorizedTenant(req, req.query.groupname as string | undefined);
   if (!groupname) {
     const err: any = new Error('groupname is required');
@@ -308,7 +309,7 @@ router.get('/listUsersInGroup',adminCheck, async (req: AuthorizedRequest, res, n
   }
 });
 
-router.post('/signUserOut',adminCheck, async (req: AuthorizedRequest, res, next) => {
+router.post('/signUserOut', adminRateLimit, adminCheck, async (req: AuthorizedRequest, res, next) => {
 
   if (
     req.body.username != req.apiGateway.event.requestContext.authorizer.claims.username &&
