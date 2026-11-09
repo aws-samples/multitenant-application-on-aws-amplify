@@ -4,13 +4,14 @@ SPDX-License-Identifier: MIT-0 */
 import { StackProps, Tags} from 'aws-cdk-lib'
 import { Construct } from 'constructs';
 import {  UserPool} from 'aws-cdk-lib/aws-cognito'
-import {  GraphqlApi,  AuthorizationType, SchemaFile,  FieldLogLevel,  MappingTemplate,  PrimaryKey,  Values, DynamoDbDataSource} from 'aws-cdk-lib/aws-appsync'
+import { GraphqlApi, AuthorizationType, SchemaFile, FieldLogLevel, DynamoDbDataSource } from 'aws-cdk-lib/aws-appsync'
 import { Table } from 'aws-cdk-lib/aws-dynamodb'
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import { Effect, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import * as path from 'path'
 import { tenantIds } from '../../config';
 import { NagSuppressions } from 'cdk-nag'
+import { addTodoResolvers } from './todo-resolvers';
 
 export interface IAppSyncProps extends StackProps{
   userPool: UserPool;
@@ -154,71 +155,7 @@ export class AppsyncConstruct extends Construct {
      })
      
 
-      dataTableDS.createResolver("QueryGetTodo",{
-      typeName: 'Query',
-      fieldName: 'getTodo',
-      requestMappingTemplate: MappingTemplate.dynamoDbGetItem('id', 'id'),
-      responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
-    })
-
-    dataTableDS.createResolver("QueryListTodos",{
-      typeName: 'Query',
-      fieldName: 'listTodos',
-      requestMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/todo-query-listTodos-resolver.vtl')),
-      responseMappingTemplate: MappingTemplate.dynamoDbResultList(),
-    })
-
-    dataTableDS.createResolver("createTodo",{
-    typeName: 'Mutation',
-    fieldName: 'createTodo',
-    requestMappingTemplate: MappingTemplate.dynamoDbPutItem(
-      PrimaryKey.partition('id').auto(),
-      Values.projecting('input')
-    ),
-    responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
-  })
-
-
-  dataTableDS.createResolver("updateTodo",{
-    typeName: 'Mutation',
-    fieldName: 'updateTodo',
-    requestMappingTemplate: MappingTemplate.dynamoDbPutItem(
-      PrimaryKey.partition('id').is('input.id'),
-      Values.projecting('input')
-    ),
-    responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
-  })
-
-
-  dataTableDS.createResolver("deleteTodo",{
-    typeName: 'Mutation',
-    fieldName: 'deleteTodo',
-    requestMappingTemplate: MappingTemplate.dynamoDbDeleteItem('id', 'id'),
-    responseMappingTemplate: MappingTemplate.dynamoDbResultItem(),
-  })
-
-  dataTableDS.createResolver("onCreateTodo", {
-    typeName: "Subscription",
-    fieldName: "onCreateTodo",
-    requestMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/subscription-request-mapping-template.vtl')),
-    responseMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/subscription-response-mapping-template.vtl' )),
-  });
-
-
- dataTableDS.createResolver("onUpdateTodo", {
-  typeName: "Subscription",
-  fieldName: "onUpdateTodo",
-  requestMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/subscription-request-mapping-template.vtl')),
-  responseMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/subscription-response-mapping-template.vtl' ))
-  });
-
-
-dataTableDS.createResolver("onDeleteTodo", {
-  typeName: "Subscription",
-  fieldName: "onDeleteTodo",
-  requestMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/subscription-request-mapping-template.vtl')),
-  responseMappingTemplate: MappingTemplate.fromFile(path.join(__dirname, './mapping-templates/subscription-response-mapping-template.vtl' ))
-});
+  addTodoResolvers(dataApi, dataTableDS);
 
   this.graphqlAPI = dataApi;
   

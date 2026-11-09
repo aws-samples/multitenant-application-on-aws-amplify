@@ -1,0 +1,46 @@
+## Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+## SPDX-License-Identifier: MIT-0
+
+#set($tenantId = $util.defaultIfNull($ctx.identity.claims.get("custom:tenantId"), ""))
+#set($owner = $util.defaultIfNull($ctx.identity.username, ""))
+#set($subject = $util.defaultIfNull($ctx.identity.sub, ""))
+#if(!$util.isString($tenantId) || $util.isNullOrBlank($tenantId) || !$util.isString($owner) || $util.isNullOrBlank($owner) || !$util.isString($subject) || $util.isNullOrBlank($subject))
+  $util.unauthorized()
+#end
+#if($util.isNull($ctx.args.input))
+  $util.error("Todo input is required.", "BadRequest")
+#end
+#set($input = $ctx.args.input)
+## Accept matching legacy identity fields, but never trust them for authorization.
+#if((!$util.isNull($input.tenantId) && $input.tenantId != $tenantId) || (!$util.isNull($input.sub) && $input.sub != $subject))
+  $util.unauthorized()
+#end
+#set($displayName = $util.defaultIfNull($ctx.identity.claims.get("preferred_username"), ""))
+## The legacy display name is only a compatibility hint. Stored ownership always
+## uses the immutable Cognito username.
+#if(!$util.isNull($input.owners) && ($input.owners.size() != 1 || (!$input.owners.contains($owner) && (!$util.isString($displayName) || $util.isNullOrBlank($displayName) || !$input.owners.contains($displayName)))))
+  $util.unauthorized()
+#end
+#set($item = {})
+#foreach($field in ["content", "isDone"])
+  #if($input.containsKey($field))
+    $util.qr($item.put($field, $input.get($field)))
+  #end
+#end
+#set($today = $util.time.nowFormatted("yyyy-MM-dd", "UTC"))
+$util.qr($item.put("tenantId", $tenantId))
+$util.qr($item.put("sub", $subject))
+$util.qr($item.put("owners", [$owner]))
+$util.qr($item.put("createdAt", $today))
+$util.qr($item.put("updatedAt", $today))
+{
+  "version": "2018-05-29",
+  "operation": "PutItem",
+  "key": { "id": $util.dynamodb.toDynamoDBJson($util.autoId()) },
+  "attributeValues": $util.dynamodb.toMapValuesJson($item),
+  "condition": {
+    "expression": "attribute_not_exists(#id)",
+    "expressionNames": { "#id": "id" },
+    "conditionalCheckFailedHandler": { "strategy": "Reject" }
+  }
+}

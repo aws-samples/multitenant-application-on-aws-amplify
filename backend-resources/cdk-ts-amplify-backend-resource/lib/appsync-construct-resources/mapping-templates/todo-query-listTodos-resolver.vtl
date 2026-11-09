@@ -10,10 +10,11 @@
 
 ## Request Template ##
       #set($identity = $ctx.identity)
-      #set($tenantId = $identity.claims["custom:tenantId"])
-      #set($owner = $identity.claims["preferred_username"])
+      #set($tenantId = $util.defaultIfNull($identity.claims.get("custom:tenantId"), ""))
+      #set($owner = $util.defaultIfNull($identity.username, ""))
+      #set($subject = $util.defaultIfNull($identity.sub, ""))
 
-      #if($tenantId && $owner)
+      #if($util.isString($tenantId) && !$util.isNullOrBlank($tenantId) && $util.isString($owner) && !$util.isNullOrBlank($owner) && $util.isString($subject) && !$util.isNullOrBlank($subject))
         #set($expressionValues = {})
         $util.qr($expressionValues.put(":tenantId", $util.dynamodb.toString($tenantId)))
         $util.qr($expressionValues.put(":owner", $util.dynamodb.toString($owner)))
@@ -53,20 +54,19 @@
         {
           "version": "2018-05-29",
           "operation": "Query",
-          "index": "$index",
+          "index": $util.toJson($index),
           "query": {
             "expression": "tenantId = :tenantId AND updatedAt BETWEEN :startDate AND :endDate",
             "expressionValues": $util.toJson($expressionValues)
           },
           "filter": {
             "expression": "contains(owners, :owner)",
-            "expressionValues": $util.toJson({ ":owner": { "S": "$owner" } })
+            "expressionValues": $util.toJson({ ":owner": $util.dynamodb.toString($owner) })
           },
           "scanIndexForward": $sortDirection,
           "limit": $util.defaultIfNull($ctx.args.limit, 10),
           "nextToken": $util.toJson($util.defaultIfNullOrEmpty($ctx.args.nextToken, null))
         }
       #else
-        $util.error("tenantId or owner is null. Aborting query.")
-        $util.abort()
+        $util.unauthorized()
       #end

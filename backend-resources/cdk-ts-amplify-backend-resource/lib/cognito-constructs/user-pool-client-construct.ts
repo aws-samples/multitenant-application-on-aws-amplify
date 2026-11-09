@@ -14,12 +14,8 @@ interface IStackProps extends StackProps {
   costcenter: string; 
 };
 
-export class UserPoolClientConstruct extends Construct {
-  public readonly userPoolClient: cognito.UserPoolClient;
-
-  constructor(scope: Construct, id: string, props: IStackProps) {
-    super(scope, id);
-
+// Shared with isolated live validation; it must exercise the sample's permissions.
+export function createAppClientAttributes() {
     const clientReadAttributes = new cognito.ClientAttributes()
       .withStandardAttributes({
         givenName: true,
@@ -59,6 +55,8 @@ export class UserPoolClientConstruct extends Construct {
         nickname: true,
         phoneNumber: true,
         profilePicture: true,
+        // Cognito requires required attributes to remain writable. Todo
+        // authorization uses the immutable username, not this display name.
         preferredUsername: true,
         profilePage: true,
         timezone: true,
@@ -66,6 +64,15 @@ export class UserPoolClientConstruct extends Construct {
         website: true,
       });
 
+  return { readAttributes: clientReadAttributes, writeAttributes: clientWriteAttributes };
+}
+
+export class UserPoolClientConstruct extends Construct {
+  public readonly userPoolClient: cognito.UserPoolClient;
+
+  constructor(scope: Construct, id: string, props: IStackProps) {
+    super(scope, id);
+    const { readAttributes, writeAttributes } = createAppClientAttributes();
 
     this.userPoolClient = new cognito.UserPoolClient(this, 'userpool-client', {
       userPoolClientName: names.userPoolClientName, 
@@ -95,8 +102,8 @@ export class UserPoolClientConstruct extends Construct {
       supportedIdentityProviders: [
         cognito.UserPoolClientIdentityProvider.COGNITO,
       ],
-      readAttributes: clientReadAttributes,
-      writeAttributes: clientWriteAttributes,
+      readAttributes,
+      writeAttributes,
     });
 
     const domainPrefix = names.cognitoDomainPrefix

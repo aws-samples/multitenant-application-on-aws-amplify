@@ -15,11 +15,10 @@ interface IClassProps {
   user: any;
 }
 
-const TaskShare: React.FC<IClassProps> = ({ tenantId, user }) => {
+const TaskShare: React.FC<IClassProps> = ({ user }) => {
     const [todos, setTodos] = useState<Todo[]>()
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const userId = user.attributes!['sub']
     let uniqueId: string  
 
     useEffect(() => {
@@ -101,12 +100,7 @@ const TaskShare: React.FC<IClassProps> = ({ tenantId, user }) => {
             query: createTodo, 
             variables: {
               input: {
-                createdAt: (new Date()).toISOString().split('T')[0], 
-                updatedAt: (new Date()).toISOString().split('T')[0], 
-                tenantId: tenantId,
-                sub: userId,
-              content: todoContent, 
-                owners: [user.attributes!['preferred_username']]
+                content: todoContent,
                 }
             },
           }) 
@@ -148,7 +142,7 @@ const TaskShare: React.FC<IClassProps> = ({ tenantId, user }) => {
          
           <Flex key={todo.id} >
             <Button onClick={async () => {
-              const shareWithWhom = window.prompt('Share with whom?');
+              const shareWithWhom = window.prompt('Enter their sign-in email address')?.trim().toLowerCase();
               if (!shareWithWhom) {
                 setErrorMessage('Share with whom value is required');
                 return;
@@ -167,7 +161,7 @@ const TaskShare: React.FC<IClassProps> = ({ tenantId, user }) => {
                   owners: [...todo?.owners as [], shareWithWhom]
                   }
               }))
-            }}>Share ➕</Button>
+            }}>Share by email ➕</Button>
 
             {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
