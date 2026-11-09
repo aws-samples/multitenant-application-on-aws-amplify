@@ -5,7 +5,6 @@ SPDX-License-Identifier: MIT-0 */
 /* eslint-disable */
 
 
-import jwt from 'jsonwebtoken';
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 // Check the token validity
@@ -20,11 +19,8 @@ async function checkTokenValidity(token: any, verifier: any) {
        // console.log("Token is valid. Payload:", payload);
     }
 
-    // Decode the JWT token
-    const decoded = jwt.decode(token);
-
-    // If all checks passed, return the decoded token
-    return { isValid: true, message: 'Token is valid', decoded };
+    // Use the verified claims instead of decoding the token a second time.
+    return { isValid: true, message: 'Token is valid', decoded: payload };
 }
 
 
@@ -69,7 +65,13 @@ export const handler = async (event: any, context: any) => {
             return { statusCode: 401, body: message };
         }
 
+        if (!decoded || typeof decoded !== 'object') {
+            return { statusCode: 401, body: 'Invalid token claims' };
+        }
         const groups = decoded['cognito:groups'];
+        if (!Array.isArray(groups) || !groups.every(group => typeof group === 'string')) {
+            return { statusCode: 401, body: 'Invalid group claims' };
+        }
 
         //    console.log('Groups:', groups); 
 
@@ -88,10 +90,10 @@ export const handler = async (event: any, context: any) => {
 
 
     } catch (err) {
-        console.error(err);
+        console.warn('Token/group verification failed.');
         return {
-            statusCode: 500,
-            body: 'Failed to process token',
+            statusCode: 401,
+            body: 'Token verification failed',
         };
     }
 };

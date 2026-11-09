@@ -1,0 +1,23 @@
+## Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+## SPDX-License-Identifier: MIT-0
+
+#set($tenantId = $util.defaultIfNull($ctx.identity.claims.get("custom:tenantId"), ""))
+#set($owner = $util.defaultIfNull($ctx.identity.username, ""))
+#set($subject = $util.defaultIfNull($ctx.identity.sub, ""))
+#if(!$util.isString($tenantId) || $util.isNullOrBlank($tenantId) || !$util.isString($owner) || $util.isNullOrBlank($owner) || !$util.isString($subject) || $util.isNullOrBlank($subject))
+  $util.unauthorized()
+#end
+{
+  "version": "2018-05-29",
+  "operation": "DeleteItem",
+  "key": { "id": $util.dynamodb.toDynamoDBJson($ctx.args.id) },
+  "condition": {
+    "expression": "attribute_exists(#id) AND #tenantId = :tenantId AND contains(#owners, :owner)",
+    "expressionNames": { "#id": "id", "#tenantId": "tenantId", "#owners": "owners" },
+    "expressionValues": {
+      ":tenantId": $util.dynamodb.toDynamoDBJson($tenantId),
+      ":owner": $util.dynamodb.toDynamoDBJson($owner)
+    },
+    "conditionalCheckFailedHandler": { "strategy": "Reject" }
+  }
+}

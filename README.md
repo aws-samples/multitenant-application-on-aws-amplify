@@ -24,5 +24,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ## Setup Instruction: 
 - [Follow this link to View the Setup Instructions](./documents/SetupInstructions.md)
+- [Todo authorization and updates to existing deployments](./documents/TodoAuthorization.md)
 
 

@@ -8,14 +8,13 @@
 ## Deploying AWS Content or Third-Party Content may incur AWS charges for creating or 
 ## using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.*/
 
-#set($tenantId = $ctx.identity.claims["custom:tenantId"])
-#set($index = $tenantId + '-Index')
-##$utils.log.info($tenantId)
-##$utils.log.info($index)
+#set($tenantId = $util.defaultIfNull($ctx.identity.claims.get("custom:tenantId"), ""))
+#set($owner = $util.defaultIfNull($ctx.identity.username, ""))
+#set($subject = $util.defaultIfNull($ctx.identity.sub, ""))
+#if(!$util.isString($tenantId) || $util.isNullOrBlank($tenantId) || !$util.isString($owner) || $util.isNullOrBlank($owner) || !$util.isString($subject) || $util.isNullOrBlank($subject))
+  $util.unauthorized()
+#end
 {
-  "version" : "2017-02-28",
-  "operation" : "Scan",
-  "index": "$index",
-  "limit": 1
+  "version": "2018-05-29",
+  "payload": null
 }
-## $utils.log.info($utils.toJson($ctx))

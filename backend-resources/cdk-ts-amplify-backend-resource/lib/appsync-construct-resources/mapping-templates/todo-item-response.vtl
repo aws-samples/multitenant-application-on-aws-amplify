@@ -1,0 +1,22 @@
+## Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+## SPDX-License-Identifier: MIT-0
+
+#set($tenantId = $util.defaultIfNull($ctx.identity.claims.get("custom:tenantId"), ""))
+#set($owner = $util.defaultIfNull($ctx.identity.username, ""))
+#set($subject = $util.defaultIfNull($ctx.identity.sub, ""))
+#if(!$util.isString($tenantId) || $util.isNullOrBlank($tenantId) || !$util.isString($owner) || $util.isNullOrBlank($owner) || !$util.isString($subject) || $util.isNullOrBlank($subject))
+  $util.unauthorized()
+#end
+## A failed condition can carry the existing item; never expose that error data.
+#if($ctx.error)
+  #if($ctx.error.type == "DynamoDB:ConditionalCheckFailedException")
+    $util.unauthorized()
+  #end
+  $util.error("Unable to complete todo request.", "TodoOperationFailed")
+#end
+#if(!$util.isNull($ctx.result))
+  #if($ctx.result.tenantId != $tenantId || $util.isNull($ctx.result.owners) || !$ctx.result.owners.contains($owner))
+    $util.unauthorized()
+  #end
+#end
+$util.toJson($ctx.result)

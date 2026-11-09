@@ -8,9 +8,15 @@
 ## Deploying AWS Content or Third-Party Content may incur AWS charges for creating or 
 ## using AWS chargeable resources, such as running Amazon EC2 instances or using Amazon S3 storage.*/
 
-#set($tenantId = $ctx.identity.claims["custom:tenantId"])
-  #set($owner = $ctx.identity.claims["preferred_username"])
-  ##$utils.log.info($owner)
+#set($tenantId = $util.defaultIfNull($ctx.identity.claims.get("custom:tenantId"), ""))
+#set($owner = $util.defaultIfNull($ctx.identity.username, ""))
+#set($subject = $util.defaultIfNull($ctx.identity.sub, ""))
+#if(!$util.isString($tenantId) || $util.isNullOrBlank($tenantId) || !$util.isString($owner) || $util.isNullOrBlank($owner) || !$util.isString($subject) || $util.isNullOrBlank($subject))
+  $util.unauthorized()
+#end
+#if($ctx.error)
+  $util.error("Unable to register todo subscription.", "TodoOperationFailed")
+#end
   $extensions.setSubscriptionFilter({
     "filterGroup": [
       {
@@ -18,16 +24,17 @@
           {
             "fieldName" : "tenantId",
             "operator" : "eq",
-            "value" : "$tenantId"
+            "value" : $tenantId
           },
           {
             "fieldName" : "owners",
             "operator" : "contains",
-            "value" : "$owner"
+            "value" : $owner
           }
         ]
       }
     ]
   })
   
-  $util.toJson($context.result)
+  ## Register the filter without returning a database record.
+  $util.toJson(null)

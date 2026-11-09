@@ -8,12 +8,17 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
+    "check": "tsc --noEmit",
+    "validation:synth": "ts-node test/integration/todo-validation-stack.ts",
+    "validation:run": "ts-node test/integration/run-todo-validation.ts",
     "cdk": "cdk",
     "updateConfig": "ts-node ./utils/updateConfig.ts"
   },
   "devDependencies": {
+    "@types/aws-lambda": "8.10.115",
     "@types/jest": "^29.5.4",
     "@types/node": "20.6.0",
+    "amplify-velocity-template": "1.4.17",
     "aws-cdk": "2.95.1",
     "esbuild": "^0.19.2",
     "jest": "^29.6.4",

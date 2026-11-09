@@ -37,7 +37,11 @@ test('authorization attributes are readable but not user-writable', () => {
   expect(client.Properties.ReadAttributes).toEqual(
     expect.arrayContaining(['custom:role', 'custom:isAdmin', 'custom:tenantId'])
   );
-  expect(client.Properties.WriteAttributes).not.toEqual(
-    expect.arrayContaining(['custom:role', 'custom:isAdmin', 'custom:tenantId'])
-  );
+  for (const attribute of [
+    'custom:role', 'custom:isAdmin', 'custom:tenantId',
+  ]) {
+    expect(client.Properties.WriteAttributes).not.toContain(attribute);
+  }
+  expect(client.Properties.ReadAttributes).toContain('preferred_username');
+  expect(client.Properties.WriteAttributes).toContain('preferred_username');
 });

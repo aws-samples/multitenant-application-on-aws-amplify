@@ -1,0 +1,59 @@
+## Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+## SPDX-License-Identifier: MIT-0
+
+#set($tenantId = $util.defaultIfNull($ctx.identity.claims.get("custom:tenantId"), ""))
+#set($owner = $util.defaultIfNull($ctx.identity.username, ""))
+#set($subject = $util.defaultIfNull($ctx.identity.sub, ""))
+#if(!$util.isString($tenantId) || $util.isNullOrBlank($tenantId) || !$util.isString($owner) || $util.isNullOrBlank($owner) || !$util.isString($subject) || $util.isNullOrBlank($subject))
+  $util.unauthorized()
+#end
+#if($util.isNull($ctx.args.input) || $util.isNullOrBlank($ctx.args.input.id))
+  $util.error("Todo id is required.", "BadRequest")
+#end
+#set($input = $ctx.args.input)
+#if(!$util.isNull($input.tenantId) && $input.tenantId != $tenantId)
+  $util.unauthorized()
+#end
+## Only an existing owner may share a record, and the caller must remain an owner.
+#if($input.containsKey("owners"))
+  #if($util.isNull($input.owners) || $input.owners.isEmpty() || $input.owners.size() > 50 || !$input.owners.contains($owner))
+    $util.error("Owners must include the caller and contain at most 50 users.", "BadRequest")
+  #end
+  #foreach($recipient in $input.owners)
+    #if(!$util.isString($recipient) || $util.isNullOrBlank($recipient))
+      $util.error("Each owner must be a nonempty username.", "BadRequest")
+    #end
+  #end
+#end
+#set($names = { "#updatedAt": "updatedAt" })
+#set($values = { ":updatedAt": $util.dynamodb.toString($util.time.nowFormatted("yyyy-MM-dd", "UTC")) })
+#set($expression = "SET #updatedAt = :updatedAt")
+## Preserve tenantId, sub, createdAt and every other stored field.
+#foreach($field in ["content", "isDone", "owners"])
+  #if($input.containsKey($field))
+    #set($name = "#" + $field)
+    #set($value = ":" + $field)
+    $util.qr($names.put($name, $field))
+    $util.qr($values.put($value, $util.dynamodb.toDynamoDB($input.get($field))))
+    #set($expression = $expression + ", " + $name + " = " + $value)
+  #end
+#end
+{
+  "version": "2018-05-29",
+  "operation": "UpdateItem",
+  "key": { "id": $util.dynamodb.toDynamoDBJson($input.id) },
+  "update": {
+    "expression": $util.toJson($expression),
+    "expressionNames": $util.toJson($names),
+    "expressionValues": $util.toJson($values)
+  },
+  "condition": {
+    "expression": "attribute_exists(#id) AND #tenantId = :tenantId AND contains(#owners, :owner)",
+    "expressionNames": { "#id": "id", "#tenantId": "tenantId", "#owners": "owners" },
+    "expressionValues": {
+      ":tenantId": $util.dynamodb.toDynamoDBJson($tenantId),
+      ":owner": $util.dynamodb.toDynamoDBJson($owner)
+    },
+    "conditionalCheckFailedHandler": { "strategy": "Reject" }
+  }
+}
